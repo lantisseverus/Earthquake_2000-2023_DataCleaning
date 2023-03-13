@@ -1,0 +1,48 @@
+---
+title: "Earthquake 2000-2023 Data Cleaning"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+```
+
+## Motivation
+
+
+As an East Asian, I can never forget living in an area which unfortunately on the seismic belt. I cannot resonate more when seeing the tragedies in Turkey and Syria right now. 3.11 Japan Touhoku Earthquake just had its 12th anniversary and now the same natural disaster stroke Turkey. It's a great opportunity to review the history that we human beings deal with earthquakes. 
+
+My data analysis will dedicate to answering the following questions:
+* Where are earthquakes frequently take place between 2000 and 2023?
+* What are the top 5 strong magnitudes and their Focal Depth (km)of the earthquake between 2000 and 2023?
+* By comparing the death and injured people in each earthquake to discuss if any other external factors can mitigate the impact.
+* By comparing the Damage to discuss if these damages can be prevented by intervening beforehand.
+
+Hope those who are unfortunately deceased can rest in peace and the data can bring some insights into future prevention and preparation. 
+
+
+## Import Data
+
+This dataset came from Kaggle Dataset: *Earthquakes -2150 BC -- 2023 AD around the world* Link: https://www.kaggle.com/datasets/bharathposa/earthquakes-from-2150bc-2023-ad-around-the-world.
+
+I will use `readr` package (which is a package of `tidyverse`) to read the csv file. And then use glimpse function to take a quick review of this data. 
+
+```{r import data}
+earthquake_df = read_csv("earthquakes.csv")
+glimpse(earthquake_df)
+```
+
+## Data Cleaning
+
+We now understand the data and the data types of each column. Let's get our hand dirty with data cleaning! What I am going to do with the data cleaning: 
+
+1. Concatenate the year, month, and day as a Date column.  
+2. I will apply the filter on the data to subset only data from 2000 to 2023. 
+3. Select only the columns that are relevant to my questions of interest.
+
+```{r data cleaning }
+earthquake_df %>% mutate(date = make_date(year = Year, month = Mo, day = Dy)) %>%  filter(date >= "2000-01-01" & date <= "2023-12-31") %>% select(date, `Location Name`, Latitude, Longitude, `Focal Depth (km)`, Mag, Deaths, Injuries, `Damage ($Mil)`,`Houses Damaged`, `Total Deaths`, `Total Injuries`, `Total Damage ($Mil)`, `Total Houses Damaged`)
+```
+
+
