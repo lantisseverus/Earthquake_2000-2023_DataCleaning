@@ -14,10 +14,11 @@ library(tidyverse)
 As an East Asian, I can never forget living in an area which unfortunately on the seismic belt. I cannot resonate more when seeing the tragedies in Turkey and Syria right now. 3.11 Japan Touhoku Earthquake just had its 12th anniversary and now the same natural disaster stroke Turkey. It's a great opportunity to review the history that we human beings deal with earthquakes. 
 
 My data analysis will dedicate to answering the following questions:
-* Where are earthquakes frequently take place between 2000 and 2023?
-* What are the top 5 strong magnitudes and their Focal Depth (km)of the earthquake between 2000 and 2023?
-* By comparing the death and injured people in each earthquake to discuss if any other external factors can mitigate the impact.
-* By comparing the Damage to discuss if these damages can be prevented by intervening beforehand.
+
+-  Where are earthquakes frequently take place between 2000 and 2023?
+-  What are the top 5 strong magnitudes and their Focal Depth (km)of the earthquake between 2000 and 2023?
+- By comparing the death and injured people in each earthquake to discuss if any other external factors can mitigate the impact.
+- By comparing the Damage to discuss if these damages can be prevented by intervening beforehand.
 
 Hope those who are unfortunately deceased can rest in peace and the data can bring some insights into future prevention and preparation. 
 
@@ -28,7 +29,7 @@ This dataset came from Kaggle Dataset: *Earthquakes -2150 BC -- 2023 AD around t
 
 I will use `readr` package (which is a package of `tidyverse`) to read the csv file. And then use glimpse function to take a quick review of this data. 
 
-```{r import data}
+```{r import data, echo=FALSE}
 earthquake_df = read_csv("earthquakes.csv")
 glimpse(earthquake_df)
 ```
@@ -40,9 +41,72 @@ We now understand the data and the data types of each column. Let's get our hand
 1. Concatenate the year, month, and day as a Date column.  
 2. I will apply the filter on the data to subset only data from 2000 to 2023. 
 3. Select only the columns that are relevant to my questions of interest.
+4. Rename the variable to make its naming more consistent
+5. Create 2 new variables to estimate the overall impact on human beings
 
 ```{r data cleaning }
-earthquake_df %>% mutate(date = make_date(year = Year, month = Mo, day = Dy)) %>%  filter(date >= "2000-01-01" & date <= "2023-12-31") %>% select(date, `Location Name`, Latitude, Longitude, `Focal Depth (km)`, Mag, Deaths, Injuries, `Damage ($Mil)`,`Houses Damaged`, `Total Deaths`, `Total Injuries`, `Total Damage ($Mil)`, `Total Houses Damaged`)
+filtered_df = earthquake_df %>% mutate(date = make_date(year = Year, month = Mo, day = Dy)) %>%  filter(date >= "2000-01-01" & date <= "2023-12-31") %>% select(date, `Location Name`, Latitude, Longitude, `Focal Depth (km)`, Mag, Deaths, Injuries, `Damage ($Mil)`,`Houses Damaged`, `Total Deaths`, `Total Injuries`, `Total Damage ($Mil)`, `Total Houses Damaged`) %>% rename(location = `Location Name`, 
+           Depth_km = `Focal Depth (km)`,
+           Damage_Mil = `Damage ($Mil)`,
+           House_Damaged = `Houses Damaged`,
+           Total_Death = `Total Deaths`,
+           Total_Injuries = `Total Injuries`,
+           Total_Damage_Mil = `Total Damage ($Mil)`, 
+           Total_House_Damaged = `Total Houses Damaged`
+           ) %>% 
+  mutate(Casualty = Deaths + Injuries, 
+         Total_Casualty = Total_Death + Total_Injuries)
+
+
 ```
+From Step 1 to 5, we have 1298 entries of observation, but most of the data containing `NA` values. 
+
+I decide to take further step to remove those incompleted cases. 
+
+6. Remove records with `NA` or null value
+
+```{r remove NA}
+cleaned_earthquake_df = na.omit(filtered_df) 
+
+cleaned_earthquake_df %>% head() %>%  knitr::kable()
+```
+
+After filtering and removing the `NA` values from the data, we have only 55 observations. 
+
+## Data Processing
+
+We can still rank the top 5 strongest Earthquake from the data.
+
+```{r}
+cleaned_earthquake_df %>% 
+  arrange(-Mag) %>% 
+  select(date, location, Mag, Depth_km) %>% 
+  head(5) %>% 
+  knitr::kable()
+```
+We know that the top 5 earthquakes so far took place between 2000 and 2023 are:
+
+1. Japan Touhoku Earthquake 9.1
+2. Chile Maule, Concepcion, Talcahuano Earthquake 8.8
+3. Chile Central Earthquake 8.3
+4. Mexico: Oaxaca, Chiapas, Tabasco; Guatemala 8.3
+5. China Sichuan Earthquake 7.9
+
+The focal depth of 4 out of 5 earthquakes reside 10-30 km.
+
+Next, I want to find which country has the most earthquakes between 2000 and 2023.
+To do this, I need to make use of latitude and longitude to match the country name.
+We then need to install and load `sp` and `rworldmap` packages.
+
+```{r Map packages}
+#install.packages("maps")
+#library(maps)
+```
+
+```{r, include=FALSE}
+#cleaned_earthquake_df %>% 
+#  mutate(Country = map.where(Longitude,Latitude))
+```
+
 
 

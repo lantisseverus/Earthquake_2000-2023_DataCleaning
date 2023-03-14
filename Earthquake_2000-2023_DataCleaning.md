@@ -10,13 +10,15 @@ Earthquake just had its 12th anniversary and now the same natural
 disaster stroke Turkey. It’s a great opportunity to review the history
 that we human beings deal with earthquakes.
 
-My data analysis will dedicate to answering the following questions: \*
-Where are earthquakes frequently take place between 2000 and 2023? \*
-What are the top 5 strong magnitudes and their Focal Depth (km)of the
-earthquake between 2000 and 2023? \* By comparing the death and injured
-people in each earthquake to discuss if any other external factors can
-mitigate the impact. \* By comparing the Damage to discuss if these
-damages can be prevented by intervening beforehand.
+My data analysis will dedicate to answering the following questions:
+
+- Where are earthquakes frequently take place between 2000 and 2023?
+- What are the top 5 strong magnitudes and their Focal Depth (km)of the
+  earthquake between 2000 and 2023?
+- By comparing the death and injured people in each earthquake to
+  discuss if any other external factors can mitigate the impact.
+- By comparing the Damage to discuss if these damages can be prevented
+  by intervening beforehand.
 
 Hope those who are unfortunately deceased can rest in peace and the data
 can bring some insights into future prevention and preparation.
@@ -31,10 +33,6 @@ I will use `readr` package (which is a package of `tidyverse`) to read
 the csv file. And then use glimpse function to take a quick review of
 this data.
 
-``` r
-earthquake_df = read_csv("earthquakes.csv")
-```
-
     ## Rows: 6350 Columns: 38
     ## ── Column specification ────────────────────────────────────────────────────────
     ## Delimiter: ","
@@ -43,10 +41,6 @@ earthquake_df = read_csv("earthquakes.csv")
     ## 
     ## ℹ Use `spec()` to retrieve the full column specification for this data.
     ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-
-``` r
-glimpse(earthquake_df)
-```
 
     ## Rows: 6,350
     ## Columns: 38
@@ -100,26 +94,86 @@ cleaning:
     2023.
 3.  Select only the columns that are relevant to my questions of
     interest.
+4.  Rename the variable to make its naming more consistent
+5.  Create 2 new variables to estimate the overall impact on human
+    beings
 
 ``` r
-earthquake_df %>% mutate(date = make_date(year = Year, month = Mo, day = Dy)) %>%  filter(date >= "2000-01-01" & date <= "2023-12-31") %>% select(date, `Location Name`, Latitude, Longitude, `Focal Depth (km)`, Mag, Deaths, Injuries, `Damage ($Mil)`,`Houses Damaged`, `Total Deaths`, `Total Injuries`, `Total Damage ($Mil)`, `Total Houses Damaged`)
+filtered_df = earthquake_df %>% mutate(date = make_date(year = Year, month = Mo, day = Dy)) %>%  filter(date >= "2000-01-01" & date <= "2023-12-31") %>% select(date, `Location Name`, Latitude, Longitude, `Focal Depth (km)`, Mag, Deaths, Injuries, `Damage ($Mil)`,`Houses Damaged`, `Total Deaths`, `Total Injuries`, `Total Damage ($Mil)`, `Total Houses Damaged`) %>% rename(location = `Location Name`, 
+           Depth_km = `Focal Depth (km)`,
+           Damage_Mil = `Damage ($Mil)`,
+           House_Damaged = `Houses Damaged`,
+           Total_Death = `Total Deaths`,
+           Total_Injuries = `Total Injuries`,
+           Total_Damage_Mil = `Total Damage ($Mil)`, 
+           Total_House_Damaged = `Total Houses Damaged`
+           ) %>% 
+  mutate(Casualty = Deaths + Injuries, 
+         Total_Casualty = Total_Death + Total_Injuries)
 ```
 
-    ## # A tibble: 1,298 × 14
-    ##    date       Location Na…¹ Latit…² Longi…³ Focal…⁴   Mag Deaths Injur…⁵ Damag…⁶
-    ##    <date>     <chr>           <dbl>   <dbl>   <dbl> <dbl>  <dbl>   <dbl>   <dbl>
-    ##  1 2000-01-03 INDIA-BANGLA…   22.1     92.8      33   4.6     NA      NA    NA  
-    ##  2 2000-01-11 CHINA:  LIAO…   40.5    123.       10   5.1     NA      30    NA  
-    ##  3 2000-01-14 CHINA:  YUNN…   25.6    101.       33   5.9      5    2528    73.5
-    ##  4 2000-02-02 IRAN:  BARDA…   35.3     58.2      33   5.3      1      15    NA  
-    ##  5 2000-02-07 SOUTH AFRICA…  -26.3     30.9       5   4.5     NA       1    NA  
-    ##  6 2000-03-28 JAPAN:  VOLC…   22.3    144.      127   7.6     NA      NA    NA  
-    ##  7 2000-04-05 GREECE:  CRE…   34.2     25.7      38   5.5     NA      NA    NA  
-    ##  8 2000-05-04 INDONESIA:  …   -1.10   124.       26   7.6     54     264    30  
-    ##  9 2000-05-07 TURKEY:  DOG…   38.2     38.8       5   4.1     NA      NA    NA  
-    ## 10 2000-05-17 TAIWAN:  TAI…   24.2    121.       10   5.4      3      13    NA  
-    ## # … with 1,288 more rows, 5 more variables: `Houses Damaged` <dbl>,
-    ## #   `Total Deaths` <dbl>, `Total Injuries` <dbl>, `Total Damage ($Mil)` <dbl>,
-    ## #   `Total Houses Damaged` <dbl>, and abbreviated variable names
-    ## #   ¹​`Location Name`, ²​Latitude, ³​Longitude, ⁴​`Focal Depth (km)`, ⁵​Injuries,
-    ## #   ⁶​`Damage ($Mil)`
+From Step 1 to 5, we have 1298 entries of observation, but most of the
+data containing `NA` values.
+
+I decide to take further step to remove those incompleted cases.
+
+6.  Remove records with `NA` or null value
+
+``` r
+cleaned_earthquake_df = na.omit(filtered_df) 
+
+cleaned_earthquake_df %>% head() %>%  knitr::kable()
+```
+
+| date       | location                                             | Latitude | Longitude | Depth_km | Mag | Deaths | Injuries | Damage_Mil | House_Damaged | Total_Death | Total_Injuries | Total_Damage_Mil | Total_House_Damaged | Casualty | Total_Casualty |
+|:-----------|:-----------------------------------------------------|---------:|----------:|---------:|----:|-------:|---------:|-----------:|--------------:|------------:|---------------:|-----------------:|--------------------:|---------:|---------------:|
+| 2001-01-13 | EL SALVADOR; GUATEMALA                               |   13.049 |   -88.660 |       60 | 7.7 |    844 |     4723 |    753.000 |        169632 |         844 |           4723 |          753.000 |              169632 |     5567 |           5567 |
+| 2001-02-13 | EL SALVADOR: SAN JUAN TEPEZONTES-SAN VICENTE-COJUTEP |   13.671 |   -88.938 |       10 | 6.6 |    315 |     3399 |    348.500 |         15706 |         315 |           3399 |          348.500 |               15706 |     3714 |           3714 |
+| 2001-03-24 | JAPAN: HIROSHIMA, OKAYAMA, HONSHU, KAGAMA            |   34.083 |   132.526 |       50 | 6.8 |      2 |      161 |    500.000 |          3700 |           2 |            161 |          500.000 |                3700 |      163 |            163 |
+| 2002-03-05 | PHILIPPINES: MINDANAO                                |    6.033 |   124.249 |       31 | 7.5 |     15 |      100 |      1.714 |           800 |          15 |            100 |            1.714 |                 800 |      115 |            115 |
+| 2003-05-21 | ALGERIA: ALGIERS, BOUMERDES, REGHIA, THENIA          |   36.964 |     3.634 |       12 | 6.8 |   2287 |    11000 |   5000.000 |        163000 |        2287 |          11000 |         5000.000 |              163000 |    13287 |          13287 |
+| 2004-08-10 | CHINA: YUNNAN PROVINCE: LUDIAN                       |   27.266 |   103.873 |        6 | 5.4 |      4 |      600 |     50.000 |         65601 |           4 |            600 |           50.000 |               65601 |      604 |            604 |
+
+After filtering and removing the `NA` values from the data, we have only
+55 observations.
+
+## Data Processing
+
+We can still rank the top 5 strongest Earthquake from the data.
+
+``` r
+cleaned_earthquake_df %>% 
+  arrange(-Mag) %>% 
+  select(date, location, Mag, Depth_km) %>% 
+  head(5) %>% 
+  knitr::kable()
+```
+
+| date       | location                                    | Mag | Depth_km |
+|:-----------|:--------------------------------------------|----:|---------:|
+| 2011-03-11 | JAPAN: HONSHU                               | 9.1 |       30 |
+| 2010-02-27 | CHILE: MAULE, CONCEPCION, TALCAHUANO        | 8.8 |       23 |
+| 2015-09-16 | CHILE: CENTRAL                              | 8.3 |       22 |
+| 2017-09-08 | MEXICO: OAXACA, CHIAPAS, TABASCO; GUATEMALA | 8.2 |       46 |
+| 2008-05-12 | CHINA: SICHUAN PROVINCE                     | 7.9 |       10 |
+
+We know that the top 5 earthquakes so far took place between 2000 and
+2023 are:
+
+1.  Japan Touhoku Earthquake 9.1
+2.  Chile Maule, Concepcion, Talcahuano Earthquake 8.8
+3.  Chile Central Earthquake 8.3
+4.  Mexico: Oaxaca, Chiapas, Tabasco; Guatemala 8.3
+5.  China Sichuan Earthquake 7.9
+
+The focal depth of 4 out of 5 earthquakes reside 10-30 km.
+
+Next, I want to find which country has the most earthquakes between 2000
+and 2023. To do this, I need to make use of latitude and longitude to
+match the country name. We then need to install and load `sp` and
+`rworldmap` packages.
+
+``` r
+#install.packages("maps")
+#library(maps)
+```
