@@ -1,0 +1,7 @@
+git status
+
+git add
+
+git commit -m "chore: test"
+
+git push
