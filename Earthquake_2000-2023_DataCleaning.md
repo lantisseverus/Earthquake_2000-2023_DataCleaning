@@ -10,7 +10,15 @@ Earthquake just had its 12th anniversary and now the same natural
 disaster stroke Turkey. It’s a great opportunity to review the history
 that we human beings deal with earthquakes.
 
-My data analysis will dedicate to answering the following questions:
+Here’s the updates for Turkey Earthquake:
+<https://www.theguardian.com/world/turkey-syria-earthquake-2023>
+
+![Photo from
+CNN](Earthquake_2000-2023_DataCleaning_files\CNN_quake_viz.jpg)
+Reference:
+<https://www.cnn.com/middleeast/live-news/turkey-earthquake-latest-020623/index.html>
+
+#### My data analysis will dedicate to answering the following questions:
 
 - Where are earthquakes frequently take place between 2000 and 2023?
 - What are the top 5 strong magnitudes and their Focal Depth (km)of the
@@ -34,6 +42,10 @@ I will use `readr` package (which is a package of `tidyverse`) to read
 the csv file. And then use glimpse function to take a quick review of
 this data.
 
+``` r
+earthquake_df = read_csv("earthquakes.csv")
+```
+
     ## Rows: 6350 Columns: 38
     ## ── Column specification ────────────────────────────────────────────────────────
     ## Delimiter: ","
@@ -43,46 +55,9 @@ this data.
     ## ℹ Use `spec()` to retrieve the full column specification for this data.
     ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
 
-    ## Rows: 6,350
-    ## Columns: 38
-    ## $ Year                                 <dbl> NA, -2150, -2000, -2000, -1610, -…
-    ## $ Mo                                   <dbl> NA, NA, NA, NA, NA, NA, NA, NA, N…
-    ## $ Dy                                   <dbl> NA, NA, NA, NA, NA, NA, NA, NA, N…
-    ## $ Hr                                   <dbl> NA, NA, NA, NA, NA, NA, NA, NA, N…
-    ## $ Mn                                   <dbl> NA, NA, NA, NA, NA, NA, NA, NA, N…
-    ## $ Sec                                  <dbl> NA, 0, NA, NA, NA, 0, NA, NA, 0, …
-    ## $ Tsu                                  <dbl> NA, NA, 1, NA, 3, NA, NA, 4, NA, …
-    ## $ Vol                                  <dbl> NA, NA, NA, NA, 1351, NA, NA, NA,…
-    ## $ `Location Name`                      <chr> NA, "JORDAN:  BAB-A-DARAA,AL-KARA…
-    ## $ Latitude                             <dbl> NA, 31.100, 35.683, 38.000, 36.40…
-    ## $ Longitude                            <dbl> NA, 35.50, 35.80, 58.20, 25.40, 3…
-    ## $ `Focal Depth (km)`                   <dbl> NA, NA, NA, 18, NA, NA, NA, NA, N…
-    ## $ Mag                                  <dbl> NA, 7.3, NA, 7.1, NA, NA, NA, NA,…
-    ## $ `MMI Int`                            <dbl> NA, NA, 10, 10, NA, 10, 10, NA, N…
-    ## $ Deaths                               <dbl> NA, NA, NA, 1, NA, NA, NA, NA, NA…
-    ## $ `Death Description`                  <dbl> NA, NA, 3, 1, NA, NA, NA, NA, NA,…
-    ## $ Missing                              <dbl> NA, NA, NA, NA, NA, NA, NA, NA, N…
-    ## $ `Missing Description`                <dbl> NA, NA, NA, NA, NA, NA, NA, NA, N…
-    ## $ Injuries                             <dbl> NA, NA, NA, NA, NA, NA, NA, NA, N…
-    ## $ `Injuries Description`               <dbl> NA, NA, NA, NA, NA, NA, NA, NA, N…
-    ## $ `Damage ($Mil)`                      <dbl> NA, NA, NA, NA, NA, NA, NA, NA, N…
-    ## $ `Damage Description`                 <dbl> NA, 3, NA, 1, NA, 3, NA, 3, 3, 3,…
-    ## $ `Houses Destroyed`                   <dbl> NA, NA, NA, NA, NA, NA, NA, NA, N…
-    ## $ `Houses Destroyed Description`       <dbl> NA, NA, NA, 1, NA, NA, NA, NA, NA…
-    ## $ `Houses Damaged`                     <dbl> NA, NA, NA, NA, NA, NA, NA, NA, N…
-    ## $ `Houses Damaged Description`         <dbl> NA, NA, NA, NA, NA, NA, NA, NA, N…
-    ## $ `Total Deaths`                       <dbl> NA, NA, NA, 1, NA, NA, NA, NA, NA…
-    ## $ `Total Death Description`            <dbl> NA, NA, 3, 1, 3, NA, NA, NA, NA, …
-    ## $ `Total Missing`                      <dbl> NA, NA, NA, NA, NA, NA, NA, NA, N…
-    ## $ `Total Missing Description`          <dbl> NA, NA, NA, NA, NA, NA, NA, NA, N…
-    ## $ `Total Injuries`                     <dbl> NA, NA, NA, NA, NA, NA, NA, NA, N…
-    ## $ `Total Injuries Description`         <dbl> NA, NA, NA, NA, NA, NA, NA, NA, N…
-    ## $ `Total Damage ($Mil)`                <dbl> NA, NA, NA, NA, NA, NA, NA, NA, N…
-    ## $ `Total Damage Description`           <dbl> NA, NA, NA, 1, 3, NA, NA, 3, NA, …
-    ## $ `Total Houses Destroyed`             <dbl> NA, NA, NA, NA, NA, NA, NA, NA, N…
-    ## $ `Total Houses Destroyed Description` <dbl> NA, NA, NA, 1, NA, NA, NA, NA, NA…
-    ## $ `Total Houses Damaged`               <dbl> NA, NA, NA, NA, NA, NA, NA, NA, N…
-    ## $ `Total Houses Damaged Description`   <dbl> NA, NA, NA, NA, NA, NA, NA, NA, N…
+``` r
+glimpse(earthquake_df)
+```
 
 ## Data Cleaning
 
@@ -245,21 +220,16 @@ includes the direct and indirect casualties from the disaster.
 ##### My original hypothesis is: The bigger the magnitude, the more casualty the disaster caused.
 
 ``` r
-country_cleaned_df %>% group_by(date, country, Mag) %>% summarize(Max_casualty = max(Total_Casualty)) %>% arrange(-Max_casualty) %>% head(5)
+country_cleaned_df %>% group_by(date, country, Mag) %>% summarize(Max_casualty = max(Total_Casualty)) %>% arrange(-Max_casualty) %>% head(5) %>% knitr::kable()
 ```
 
-    ## `summarise()` has grouped output by 'date', 'country'. You can override using
-    ## the `.groups` argument.
-
-    ## # A tibble: 5 × 4
-    ## # Groups:   date, country [5]
-    ##   date       country     Mag Max_casualty
-    ##   <date>     <chr>     <dbl>        <dbl>
-    ## 1 2010-01-12 Haiti       7         616000
-    ## 2 2008-05-12 China       7.9       461823
-    ## 3 2015-04-25 Nepal       7.8        32957
-    ## 4 2011-03-11 Japan       9.1        24595
-    ## 5 2018-09-28 Indonesia   7.5        15019
+| date       | country   | Mag | Max_casualty |
+|:-----------|:----------|----:|-------------:|
+| 2010-01-12 | Haiti     | 7.0 |       616000 |
+| 2008-05-12 | China     | 7.9 |       461823 |
+| 2015-04-25 | Nepal     | 7.8 |        32957 |
+| 2011-03-11 | Japan     | 9.1 |        24595 |
+| 2018-09-28 | Indonesia | 7.5 |        15019 |
 
 However, from the above table, we can see that Japan has the strongest
 magnitude earthquake between 2000 to 2023. The casualties are not the
@@ -274,23 +244,14 @@ country_cleaned_df %>% group_by(date, country, Mag) %>% summarize(Max_casualty =
   xlab("Magnitude") + ylab("Max Casualty (Million)")
 ```
 
-    ## `summarise()` has grouped output by 'date', 'country'. You can override using
-    ## the `.groups` argument.
-    ## `geom_smooth()` using method = 'loess' and formula = 'y ~ x'
-
 ![](Earthquake_2000-2023_DataCleaning_files/figure-gfm/Casualy%20Viz-1.png)<!-- -->
+
 We can see the scatter plot and the smooth line are almost horizontally
 related, which meant they are barely relevant. But, before drawing a
 conclusion, let’s test it with a correlation test.
 
 ``` r
 casualty_df = country_cleaned_df %>% group_by(date, country, Mag) %>% summarize(Max_casualty = max(Total_Casualty)) 
-```
-
-    ## `summarise()` has grouped output by 'date', 'country'. You can override using
-    ## the `.groups` argument.
-
-``` r
 shapiro.test(casualty_df$Mag)
 ```
 
@@ -373,9 +334,6 @@ country_cleaned_df %>% group_by(date, country, Mag) %>% summarize(sum_damage = s
           sum_house_damage = sum(Total_House_Damaged)) %>% arrange(desc(sum_damage), desc(sum_house_damage)) %>% head(5) %>% knitr::kable()
 ```
 
-    ## `summarise()` has grouped output by 'date', 'country'. You can override using
-    ## the `.groups` argument.
-
 | date       | country | Mag | sum_damage | sum_house_damage |
 |:-----------|:--------|----:|-----------:|-----------------:|
 | 2011-03-11 | Japan   | 9.1 |   220136.6 |           280920 |
@@ -386,25 +344,185 @@ country_cleaned_df %>% group_by(date, country, Mag) %>% summarize(sum_damage = s
 
 From the above table, we can see that Japan has the strongest magnitude
 earthquake between 2000 to 2023. The damage cost the most but the amount
-of the house damaged is not the most. The damage and house damaged
-should be treated separately in this case.
+of the house damaged is not the most. **The damage and house damaged
+should be treated separately in this case.**
 
 Since house damage may include other factors such as the building
 materials.
 
-Let’s visualize the relationship between Total Damage in Million and
-Magnitude.
+##### Let’s visualize the relationship between Total Damage in Million and Magnitude.
 
 ``` r
 country_cleaned_df %>% group_by(date, country, Mag) %>% summarize(sum_damage = sum(Total_Damage_Mil)) %>% ggplot(aes(x = Mag, y = sum_damage)) + geom_point() + geom_smooth()+ geom_vline(xintercept = 8, colour="red", linetype = "longdash") + labs(title = "The Relationship between sum of Damage in Million and Magnitude of Earthquake") +
   xlab("Magnitude") + ylab("Sum of Damage (Million)")
 ```
 
-    ## `summarise()` has grouped output by 'date', 'country'. You can override using
-    ## the `.groups` argument.
-    ## `geom_smooth()` using method = 'loess' and formula = 'y ~ x'
-
 ![](Earthquake_2000-2023_DataCleaning_files/figure-gfm/Damage%20in%20Mil%20and%20Magnitude%20Viz-1.png)<!-- -->
+
 Interestingly, we found an elbow point in the trend. When the Magnitude
 of the quake is greater than or equal to 8 the potential damage could
 range from 1 to 200,000 Million.
+
+``` r
+damage_df = country_cleaned_df %>% group_by(date, country, Mag) %>% summarize(sum_damage = sum(Total_Damage_Mil)) 
+shapiro.test(damage_df$Mag)
+```
+
+    ## 
+    ##  Shapiro-Wilk normality test
+    ## 
+    ## data:  damage_df$Mag
+    ## W = 0.98349, p-value = 0.6484
+
+``` r
+shapiro.test(damage_df$sum_damage)
+```
+
+    ## 
+    ##  Shapiro-Wilk normality test
+    ## 
+    ## data:  damage_df$sum_damage
+    ## W = 0.24928, p-value = 2.972e-15
+
+The sum of damage variable is way lower than the p-value which didn’t
+meet the premises of correlation test, implying that the distribution of
+the data are significantly different from normal distribution.
+Therefore, correlation test is not suitable in this case.
+
+##### What about House Damaged and the Magnitude ?
+
+``` r
+country_cleaned_df %>% group_by(date, country, Mag) %>% summarize(sum_house_damage = sum(Total_House_Damaged)) %>% ggplot(aes(x = Mag, y = sum_house_damage)) + geom_point() +  geom_smooth()+ scale_y_continuous(labels = scales::unit_format(unit = "M", scale = 1e-6)) +
+  labs(title = "The Relationship between sum of House damaged and Magnitude of Earthquake") +
+  xlab("Magnitude") + ylab("Sum of House damaged(Million)") 
+```
+
+![](Earthquake_2000-2023_DataCleaning_files/figure-gfm/House%20Damaged%20and%20Magnitude%20Viz-1.png)<!-- -->
+
+From the output, we can tell that the numbers of house damaged has
+little relation with the magnitude. However, you can see one data point
+that is particularly high.
+
+Let’s apply filter and find out this data point.
+
+``` r
+highlight_df = country_cleaned_df %>% 
+  group_by(date, country, Mag) %>% 
+  summarize(sum_house_damage = sum(Total_House_Damaged)) %>% 
+  filter(sum_house_damage >= 20000000)
+```
+
+Here you go. The potential outlier is from China Sichuan Earthquake with
+magnitude at 7.9 and the focal depth was merely 10 km.
+
+``` r
+country_cleaned_df %>% group_by(date, country, Mag) %>% summarize(sum_house_damage = sum(Total_House_Damaged)) %>% ggplot(aes(x = Mag, y = sum_house_damage)) + geom_point(alpha = 0.5)  + geom_point(data=highlight_df, 
+             aes(x=Mag,y=sum_house_damage), 
+             color='red',
+             size=3) + geom_smooth()+ scale_y_continuous(labels = scales::unit_format(unit = "M", scale = 1e-6)) +
+  labs(title = "The Relationship between sum of House damaged and Magnitude of Earthquake") +
+  xlab("Magnitude") + ylab("Sum of House damaged(Million)")
+```
+
+![](Earthquake_2000-2023_DataCleaning_files/figure-gfm/highlighted%20specific%20data%20point-1.png)<!-- -->
+
+``` r
+house_damage_df = country_cleaned_df %>% group_by(date, country, Mag) %>% summarize(sum_house_damage = sum(Total_House_Damaged)) 
+shapiro.test(house_damage_df$Mag)
+```
+
+    ## 
+    ##  Shapiro-Wilk normality test
+    ## 
+    ## data:  house_damage_df$Mag
+    ## W = 0.98349, p-value = 0.6484
+
+``` r
+shapiro.test(house_damage_df$sum_house_damage)
+```
+
+    ## 
+    ##  Shapiro-Wilk normality test
+    ## 
+    ## data:  house_damage_df$sum_house_damage
+    ## W = 0.13365, p-value = 2.483e-16
+
+The sum of house damaged variable is way lower than the p-value which
+didn’t meet the premises of correlation test, implying that the
+distribution of the data are significantly different from normal
+distribution. Therefore, correlation test is not suitable in this case.
+
+For establishing an interactive data visualization, I will save the
+`country_cleaned_df` for Tableau presentation.
+
+``` r
+write.csv(country_cleaned_df, "earthquake_by_country_cleaned.csv", row.names=FALSE)
+```
+
+## Findings and Conclusion
+
+First of all, I found that most of the earthquakes took place more
+frequently in East or Southeast Asia. It has a lot to do with the plate
+activity underneath East and Southeast Asia.
+
+Please refer to below for the plates under East and
+Southeast![](Earthquake_2000-2023_DataCleaning_files\asiaplates.png)
+
+Map of Tectonic Plates in East and Southeast Asia (United States
+Geological Survey, Public Domain)
+
+Second, I also found that magnitude is not the fatal factor that led to
+massive casualties. Sometimes, the infrastructure, the building
+material, the stability of the building, and the emergency first aid can
+greatly impact the number of casualties. Besides, Earthquakes can
+trigger landslides, tsunamis, fires, and floods. These secondary
+disasters can also exacerbate the number of casualties.
+
+Reference:
+
+- 2004 Indian Ocean earthquake and tsunami:
+  <https://en.wikipedia.org/wiki/2004_Indian_Ocean_earthquake_and_tsunami>
+- 2011 Tōhoku earthquake and
+  tsunami:<https://en.wikipedia.org/wiki/2011_T%C5%8Dhoku_earthquake_and_tsunami>
+
+The time that the earthquake took place also played a key role here.
+Take Turkey’s 2023 Earthquake for example, the earthquake stroke at
+midnight while people are in deep sleep, making people unaware of the
+coming of an earthquake and thus missing the time to stay safe, and find
+protection.
+
+The other key factor that resulted in massive casualties is architecture
+quality. Previously, I have mentioned that the building material, the
+stability of the building, and the structure of the architecture have
+also dramatically impacted the massive casualties. Take the tragedy that
+happened in Turkey in 2023 as an example again. Experts have pointed out
+that the “pancake collapse” of the building made the rescue even more
+impossible.
+
+A similar situation also occurred in Haiti.
+
+Reference:
+
+- NPR’s article :
+  <https://www.npr.org/2010/01/14/122547242/haitis-buildings-werent-fit-to-withstand-quakes>
+
+The finding indirectly answered our next question, the magnitude is not
+the only factor that caused house damage. The massive house damage could
+be the result of unstable architecture structures, under-qualified
+building materials, etc.
+
+Finally, the cost of the damage is not significant if the magnitude is
+less than 8. Only a quake whose Magnitude is equal to or greater than 8,
+would the cost of damage positively correlate to the magnitude. However,
+this is not conclusive. As previously mentioned, other secondary
+disasters such as landslides, tsunamis, and floods can also bring up a
+longer-term impact compared to earthquakes themselves.
+
+Last but not the least, hopefully, this data analysis can call out some
+actions for those governments whose countries are situated somewhere
+adjacent to the continental plates to examine the architectural
+structure, intensify the emergency first aid, sponsor the rescue teams,
+reinforce the earthquake drill and plan, and prepare for supply.
+
+![](Earthquake_2000-2023_DataCleaning_files\tectonics.jpg) Reference
+from NOAA: <https://oceanservice.noaa.gov/facts/tectonics.html>
