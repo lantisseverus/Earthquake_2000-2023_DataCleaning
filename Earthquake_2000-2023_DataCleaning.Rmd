@@ -14,9 +14,7 @@ As an East Asian, I can never forget living in an area which unfortunately on th
 
 Here's the updates for Turkey Earthquake: <https://www.theguardian.com/world/turkey-syria-earthquake-2023>
 
-![Photo from CNN](Earthquake_2000-2023_DataCleaning_files\CNN_quake_viz.jpg)
-Reference: https://www.cnn.com/middleeast/live-news/turkey-earthquake-latest-020623/index.html
-
+![Photo from CNN](Earthquake_2000-2023_DataCleaning_files%5CCNN_quake_viz.jpg) Reference: <https://www.cnn.com/middleeast/live-news/turkey-earthquake-latest-020623/index.html>
 
 #### My data analysis will dedicate to answering the following questions:
 
@@ -26,8 +24,6 @@ Reference: https://www.cnn.com/middleeast/live-news/turkey-earthquake-latest-020
 -   By comparing the Damage and House Destroyed with the magnitude of each quake to discuss if these damages can be prevented by intervening beforehand.
 
 Hope those who are unfortunately deceased can rest in peace and the data can bring some insights into future prevention and preparation.
-
-
 
 ## Import Data
 
@@ -70,22 +66,15 @@ From Step 1 to 5, we have 1298 entries of observation, but most of the data cont
 
 I decide to take further step to remove those incompleted cases.
 
-6.  Remove records with `NA` or null value
+6.  Remove records with `NA` or null value << I did it in version 1 but then found out we missed too many important data. Therefore, I will erase this step.
 
-```{r remove NA}
-cleaned_earthquake_df = na.omit(filtered_df) 
-
-cleaned_earthquake_df %>% head() %>%  knitr::kable()
-```
-
-After filtering and removing the `NA` values from the data, we have only 55 observations.
 
 ## Data Processing
 
 We can still rank the top 5 strongest Earthquake from the data.
 
 ```{r}
-cleaned_earthquake_df %>% 
+filtered_df %>% 
   arrange(-Mag) %>% 
   select(date, location, Mag, Depth_km) %>% 
   head(5) %>% 
@@ -94,20 +83,21 @@ cleaned_earthquake_df %>%
 
 We know that the top 5 earthquakes so far took place between 2000 and 2023 are:
 
-1.  Japan Touhoku Earthquake 9.1
-2.  Chile Maule, Concepcion, Talcahuano Earthquake 8.8
-3.  Chile Central Earthquake 8.3
-4.  Mexico: Oaxaca, Chiapas, Tabasco; Guatemala 8.3
-5.  China Sichuan Earthquake 7.9
+1.  2004 Indian/Indonesia Ocean earthquake and tsunami 9.1
+2.  Japan Touhoku Earthquake 9.1
+3.  Chile Maule, Concepcion, Talcahuano Earthquake 8.8
+4.  Indonesia Sumatera 8.6
+5.  Indonesia Sumatera 8.6
 
-The focal depth of 4 out of 5 earthquakes reside 10-30 km.
+
+The focal depth of these top 5 earthquakes resides 10-30 km.
 
 Next, I want to find which country has the most earthquakes between 2000 and 2023. To do this, I need to separate the location name into country name and location name.
 
 To make the country names and location more readable, I will modify its font.
 
 ```{r Separate Country from Locaton Name, warning=FALSE}
-country_cleaned_df = cleaned_earthquake_df %>% separate(location,c("country", "location"), ":") %>% mutate(country = tools::toTitleCase(tolower(country)), 
+country_cleaned_df = filtered_df %>% separate(location,c("country", "location"), ":") %>% mutate(country = tools::toTitleCase(tolower(country)), 
                                                                                           location = tools::toTitleCase(tolower(location)))
 ```
 
@@ -115,22 +105,23 @@ country_cleaned_df = cleaned_earthquake_df %>% separate(location,c("country", "l
 country_cleaned_df %>% group_by(country) %>% summarize(frequency = n()) %>% arrange(-frequency) %>% head(5) %>% knitr::kable()
 ```
 
-From the result, we can see that most of the earthquakes took place in East and Southeast Asia - including China, Japan, Philippines, Indonesia, India. A few earthquake also took place in Central and South America, such as Chile, Haiti, and Mexico.
+From the result, we can see that most of the earthquakes took place in East and Southeast Asia - including China,Indonesia, Japan, and India. A few earthquake also took place in Central Asia like Iran.
 
-The top 4 countries\* will be:
+The top  countries will be:
 
 1.  China
-2.  Japan
-3.  Philippines
-4.  Indonesia
+2.  Indonesia
+3.  Iran
+4.  Japan
+5.  India
 
-\*NOTE: Choosing top 4 instead of top 5 because the fifth place has the same frequency as the rest (i.e., 6th to 10th place).
+
 
 ## Dig into the context behind the casulty
 
 Let's dig into the number behind the casualty. First, I notice that for each record, there are deaths and total deaths; injuries and total injuries. These pair-wise variables also lead to the creation of casualty and total casualty. Not sure how to distinguish these similar variables.
 
-After simple comparison, most of the data are in alignment with death - total death, injuries - total injuries, and casualty - total casualty. Only these 3 records are in difference.
+After simple comparison, most of the data are in alignment with death - total death, injuries - total injuries, and casualty - total casualty. Only these 1 record is in difference.
 
 ```{r Casulty Statistics}
 country_cleaned_df %>% 
@@ -149,7 +140,7 @@ To define the casualty, I tend to be lenient toward the numbers. Hence, I decide
 ##### My original hypothesis is: The bigger the magnitude, the more casualty the disaster caused.
 
 ```{r Casualty Arregation, message=FALSE}
-country_cleaned_df %>% group_by(date, country, Mag) %>% summarize(Max_casualty = max(Total_Casualty)) %>% arrange(-Max_casualty) %>% head(5) %>% knitr::kable()
+country_cleaned_df %>% group_by(date, country, Mag) %>% summarize(sum_t_casualty = sum(Total_Casualty)) %>% arrange(-sum_t_casualty) %>% head(5) %>% knitr::kable()
 ```
 
 However, from the above table, we can see that Japan has the strongest magnitude earthquake between 2000 to 2023. The casualties are not the worst. We may infer from the result that magnitude is not the only factor that caused casualties but infrastructure and familiarity with massive emergency first aid.
@@ -157,33 +148,33 @@ However, from the above table, we can see that Japan has the strongest magnitude
 Let's use a graph to present the hypothesis with the data.
 
 ```{r Casualy Viz, message=FALSE}
-country_cleaned_df %>% group_by(date, country, Mag) %>% summarize(Max_casualty = max(Total_Casualty)) %>% ggplot(aes(x = Mag, y = Max_casualty)) + geom_point() + geom_smooth()+ scale_y_continuous(labels = scales::unit_format(unit = "M", scale = 1e-6)) + labs(title = "Max Casualty and Magnitude of Earthquake") +
-  xlab("Magnitude") + ylab("Max Casualty (Million)")
+country_cleaned_df %>% group_by(date, country, Mag) %>% summarize(sum_t_casualty = sum(Total_Casualty)) %>% ggplot(aes(x = Mag, y = sum_t_casualty)) + geom_point() + geom_smooth()+ scale_y_continuous(labels = scales::unit_format(unit = "M", scale = 1e-6)) + labs(title = "Sum of Casualties and Magnitude of Earthquake") +
+  xlab("Magnitude") + ylab("Sum of Casualty (Million)")
 ```
 
 We can see the scatter plot and the smooth line are almost horizontally related, which meant they are barely relevant. But, before drawing a conclusion, let's test it with a correlation test.
 
 ```{r Preleminary test , message=FALSE}
-casualty_df = country_cleaned_df %>% group_by(date, country, Mag) %>% summarize(Max_casualty = max(Total_Casualty)) 
+casualty_df = country_cleaned_df %>% group_by(date, country, Mag) %>% summarize(sum_t_casualty = sum(Total_Casualty)) 
 shapiro.test(casualty_df$Mag)
-shapiro.test(casualty_df$Max_casualty)
+shapiro.test(casualty_df$sum_t_casualty)
 ```
 
 From the output, the two p-values are greater than the significance level 0.05 implying that the distribution of the data are not significantly different from normal distribution. In other words, we can assume the normality.
 
 ```{r  Casualty Mag Cor Test}
-res = cor.test(casualty_df$Mag, casualty_df$Max_casualty, 
+res = cor.test(casualty_df$Mag, casualty_df$sum_t_casualty, 
                     method = "pearson")
 res
 ```
 
-The correlation coefficient: 0.1764589 is close to 0 meaning that there is no association between the two variables (Magnitude and Casualty).
+The correlation coefficient: 0.1531141  is close to 0 meaning that there is a lower degree of a positive association between the two variables (Magnitude and Sum of Casualites). 
 
 ## Deep Dive into the Damage and the House Destroyed of each quake
 
 Again, I notice that for each record, there are Damage in Million and Total Damage in Million; House Damaged and Total House Damaged.Not sure how to distinguish these similar variables.
 
-After simple comparison, most of the data are in alignment with death - total death, injuries - total injuries, and casualty - total casualty. Only these 2 records are in difference.
+After simple comparison, most of the data are in alignment with death - total death, injuries - total injuries, and casualty - total casualty. Only these 3 records are in difference.
 
 ```{r Damage Statistics}
 country_cleaned_df %>% 
@@ -211,11 +202,11 @@ Since house damage may include other factors such as the building materials.
 ##### Let's visualize the relationship between Total Damage in Million and Magnitude.
 
 ```{r Damage in Mil and Magnitude Viz, message=FALSE}
-country_cleaned_df %>% group_by(date, country, Mag) %>% summarize(sum_damage = sum(Total_Damage_Mil)) %>% ggplot(aes(x = Mag, y = sum_damage)) + geom_point() + geom_smooth()+ geom_vline(xintercept = 8, colour="red", linetype = "longdash") + labs(title = "The Relationship between sum of Damage in Million and Magnitude of Earthquake") +
+country_cleaned_df %>% group_by(date, country, Mag) %>% summarize(sum_damage = sum(Total_Damage_Mil)) %>% ggplot(aes(x = Mag, y = sum_damage)) + geom_point() + geom_smooth()+ geom_vline(xintercept = 8.1, colour="red", linetype = "longdash") + labs(title = "The Relationship between sum of Damage in Million and Magnitude of Earthquake") +
   xlab("Magnitude") + ylab("Sum of Damage (Million)")
 ```
 
-Interestingly, we found an elbow point in the trend. When the Magnitude of the quake is greater than or equal to 8 the potential damage could range from 1 to 200,000 Million.
+Interestingly, we found an elbow point in the trend. When the Magnitude of the quake is greater than or equal to 8.1 the potential damage could range from 1 to 200,000 Million.
 
 ```{r Damage Preleminary test , message=FALSE}
 damage_df = country_cleaned_df %>% group_by(date, country, Mag) %>% summarize(sum_damage = sum(Total_Damage_Mil)) 
@@ -223,7 +214,15 @@ shapiro.test(damage_df$Mag)
 shapiro.test(damage_df$sum_damage)
 ```
 
-The sum of damage variable is way lower than the p-value which didn't meet the premises of correlation test, implying that the distribution of the data are significantly different from normal distribution. Therefore, correlation test is not suitable in this case.
+From the output, the two p-values are greater than the significance level 0.05 implying that the distribution of the data are not significantly different from normal distribution. In other words, we can assume the normality.
+
+```{r  Damage Mag Cor Test}
+res1 = cor.test(damage_df$Mag, damage_df$sum_damage, 
+                    method = "pearson")
+res1
+```
+
+The correlation coefficient: 0.2779829 is close to 0 meaning that there is a lower degree of a positive association between the two variables (Magnitude and Damage in Million). 
 
 ##### What about House Damaged and the Magnitude ?
 
@@ -261,7 +260,15 @@ shapiro.test(house_damage_df$Mag)
 shapiro.test(house_damage_df$sum_house_damage)
 ```
 
-The sum of house damaged variable is way lower than the p-value which didn't meet the premises of correlation test, implying that the distribution of the data are significantly different from normal distribution. Therefore, correlation test is not suitable in this case.
+From the output, the two p-values are greater than the significance level 0.05 implying that the distribution of the data are not significantly different from normal distribution. In other words, we can assume the normality.
+
+```{r  House Damage Mag Cor Test}
+res2 = cor.test(house_damage_df$Mag,house_damage_df$sum_house_damage, 
+                    method = "pearson")
+res2
+```
+The correlation coefficient: 0.1190403is close to 0 meaning that there is a lower degree of a positive association between the two variables (Magnitude and Sum of House Damage). 
+
 
 For establishing an interactive data visualization, I will save the `country_cleaned_df` for Tableau presentation.
 
@@ -269,40 +276,35 @@ For establishing an interactive data visualization, I will save the `country_cle
 write.csv(country_cleaned_df, "earthquake_by_country_cleaned.csv", row.names=FALSE)
 ```
 
-
 ## Findings and Conclusion
 
 First of all, I found that most of the earthquakes took place more frequently in East or Southeast Asia. It has a lot to do with the plate activity underneath East and Southeast Asia.
 
-
-Please refer to below for the plates under East and Southeast![](Earthquake_2000-2023_DataCleaning_files\asiaplates.png)
+Please refer to below for the plates under East and Southeast![](Earthquake_2000-2023_DataCleaning_files%5Casiaplates.png)
 
 Map of Tectonic Plates in East and Southeast Asia (United States Geological Survey, Public Domain)
 
-Second, I also found that magnitude is not the fatal factor that led to massive casualties. Sometimes, the infrastructure, the building material, the stability of the building, and the emergency first aid can greatly impact the number of casualties. Besides, Earthquakes can trigger landslides, tsunamis, fires, and floods. These secondary disasters can also exacerbate the number of casualties. 
+Second, I also found that magnitude is not the fatal factor that led to massive casualties. Sometimes, the infrastructure, the building material, the stability of the building, and the emergency first aid can greatly impact the number of casualties. Besides, Earthquakes can trigger landslides, tsunamis, fires, and floods. These secondary disasters can also exacerbate the number of casualties.
 
 Reference:
 
-- 2004 Indian Ocean earthquake and tsunami: https://en.wikipedia.org/wiki/2004_Indian_Ocean_earthquake_and_tsunami
-- 2011 Tōhoku earthquake and tsunami:https://en.wikipedia.org/wiki/2011_T%C5%8Dhoku_earthquake_and_tsunami
+-   2004 Indian Ocean earthquake and tsunami: <https://en.wikipedia.org/wiki/2004_Indian_Ocean_earthquake_and_tsunami>
+-   2011 Tōhoku earthquake and tsunami:<https://en.wikipedia.org/wiki/2011_T%C5%8Dhoku_earthquake_and_tsunami>
 
 The time that the earthquake took place also played a key role here. Take Turkey's 2023 Earthquake for example, the earthquake stroke at midnight while people are in deep sleep, making people unaware of the coming of an earthquake and thus missing the time to stay safe, and find protection.
 
-The other key factor that resulted in massive casualties is architecture quality. Previously, I have mentioned that the building material, the stability of the building, and the structure of the architecture have also dramatically impacted the massive casualties. Take the tragedy that happened in Turkey in 2023 as an example again. Experts have pointed out that the "pancake collapse" of the building made the rescue even more impossible.  
+The other key factor that resulted in massive casualties is architecture quality. Previously, I have mentioned that the building material, the stability of the building, and the structure of the architecture have also dramatically impacted the massive casualties. Take the tragedy that happened in Turkey in 2023 as an example again. Experts have pointed out that the "pancake collapse" of the building made the rescue even more impossible.
 
 A similar situation also occurred in Haiti.
 
 Reference:
 
-- NPR's article : https://www.npr.org/2010/01/14/122547242/haitis-buildings-werent-fit-to-withstand-quakes
+-   NPR's article : <https://www.npr.org/2010/01/14/122547242/haitis-buildings-werent-fit-to-withstand-quakes>
 
-The finding indirectly answered our next question, the magnitude is not the only factor that caused house damage. The massive house damage could be the result of unstable architecture structures, under-qualified building materials, etc. 
+The finding indirectly answered our next question, the magnitude is not the only factor that caused house damage. The massive house damage could be the result of unstable architecture structures, under-qualified building materials, etc.
 
-Finally, the cost of the damage is not significant if the magnitude is less than 8. Only a quake whose Magnitude is equal to or greater than 8, would the cost of damage positively correlate to the magnitude. However, this is not conclusive. As previously mentioned, other secondary disasters such as landslides, tsunamis, and floods can also bring up a longer-term impact compared to earthquakes themselves. 
+Finally, the cost of the damage is not significant if the magnitude is less than 8. Only a quake whose Magnitude is equal to or greater than 8, would the cost of damage positively correlate to the magnitude. However, this is not conclusive. As previously mentioned, other secondary disasters such as landslides, tsunamis, and floods can also bring up a longer-term impact compared to earthquakes themselves.
 
 Last but not the least, hopefully, this data analysis can call out some actions for those governments whose countries are situated somewhere adjacent to the continental plates to examine the architectural structure, intensify the emergency first aid, sponsor the rescue teams, reinforce the earthquake drill and plan, and prepare for supply.
 
-![](Earthquake_2000-2023_DataCleaning_files\tectonics.jpg)
-Reference from NOAA: https://oceanservice.noaa.gov/facts/tectonics.html
-
-
+![](Earthquake_2000-2023_DataCleaning_files%5Ctectonics.jpg) Reference from NOAA: <https://oceanservice.noaa.gov/facts/tectonics.html>

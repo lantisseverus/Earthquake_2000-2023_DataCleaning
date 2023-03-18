@@ -14,7 +14,7 @@ Here’s the updates for Turkey Earthquake:
 <https://www.theguardian.com/world/turkey-syria-earthquake-2023>
 
 ![Photo from
-CNN](Earthquake_2000-2023_DataCleaning_files\CNN_quake_viz.jpg)
+CNN](Earthquake_2000-2023_DataCleaning_files%5CCNN_quake_viz.jpg)
 Reference:
 <https://www.cnn.com/middleeast/live-news/turkey-earthquake-latest-020623/index.html>
 
@@ -93,56 +93,40 @@ data containing `NA` values.
 
 I decide to take further step to remove those incompleted cases.
 
-6.  Remove records with `NA` or null value
-
-``` r
-cleaned_earthquake_df = na.omit(filtered_df) 
-
-cleaned_earthquake_df %>% head() %>%  knitr::kable()
-```
-
-| date       | location                                             | Latitude | Longitude | Depth_km | Mag | Deaths | Injuries | Damage_Mil | House_Damaged | Total_Death | Total_Injuries | Total_Damage_Mil | Total_House_Damaged | Casualty | Total_Casualty |
-|:-----------|:-----------------------------------------------------|---------:|----------:|---------:|----:|-------:|---------:|-----------:|--------------:|------------:|---------------:|-----------------:|--------------------:|---------:|---------------:|
-| 2001-01-13 | EL SALVADOR; GUATEMALA                               |   13.049 |   -88.660 |       60 | 7.7 |    844 |     4723 |    753.000 |        169632 |         844 |           4723 |          753.000 |              169632 |     5567 |           5567 |
-| 2001-02-13 | EL SALVADOR: SAN JUAN TEPEZONTES-SAN VICENTE-COJUTEP |   13.671 |   -88.938 |       10 | 6.6 |    315 |     3399 |    348.500 |         15706 |         315 |           3399 |          348.500 |               15706 |     3714 |           3714 |
-| 2001-03-24 | JAPAN: HIROSHIMA, OKAYAMA, HONSHU, KAGAMA            |   34.083 |   132.526 |       50 | 6.8 |      2 |      161 |    500.000 |          3700 |           2 |            161 |          500.000 |                3700 |      163 |            163 |
-| 2002-03-05 | PHILIPPINES: MINDANAO                                |    6.033 |   124.249 |       31 | 7.5 |     15 |      100 |      1.714 |           800 |          15 |            100 |            1.714 |                 800 |      115 |            115 |
-| 2003-05-21 | ALGERIA: ALGIERS, BOUMERDES, REGHIA, THENIA          |   36.964 |     3.634 |       12 | 6.8 |   2287 |    11000 |   5000.000 |        163000 |        2287 |          11000 |         5000.000 |              163000 |    13287 |          13287 |
-| 2004-08-10 | CHINA: YUNNAN PROVINCE: LUDIAN                       |   27.266 |   103.873 |        6 | 5.4 |      4 |      600 |     50.000 |         65601 |           4 |            600 |           50.000 |               65601 |      604 |            604 |
-
-After filtering and removing the `NA` values from the data, we have only
-55 observations.
+6.  Remove records with `NA` or null value \<\< I did it in version 1
+    but then found out we missed too many important data. Therefore, I
+    will erase this step.
 
 ## Data Processing
 
 We can still rank the top 5 strongest Earthquake from the data.
 
 ``` r
-cleaned_earthquake_df %>% 
+filtered_df %>% 
   arrange(-Mag) %>% 
   select(date, location, Mag, Depth_km) %>% 
   head(5) %>% 
   knitr::kable()
 ```
 
-| date       | location                                    | Mag | Depth_km |
-|:-----------|:--------------------------------------------|----:|---------:|
-| 2011-03-11 | JAPAN: HONSHU                               | 9.1 |       30 |
-| 2010-02-27 | CHILE: MAULE, CONCEPCION, TALCAHUANO        | 8.8 |       23 |
-| 2015-09-16 | CHILE: CENTRAL                              | 8.3 |       22 |
-| 2017-09-08 | MEXICO: OAXACA, CHIAPAS, TABASCO; GUATEMALA | 8.2 |       46 |
-| 2008-05-12 | CHINA: SICHUAN PROVINCE                     | 7.9 |       10 |
+| date       | location                                 | Mag | Depth_km |
+|:-----------|:-----------------------------------------|----:|---------:|
+| 2004-12-26 | INDONESIA: SUMATRA: ACEH: OFF WEST COAST | 9.1 |       30 |
+| 2011-03-11 | JAPAN: HONSHU                            | 9.1 |       30 |
+| 2010-02-27 | CHILE: MAULE, CONCEPCION, TALCAHUANO     | 8.8 |       23 |
+| 2005-03-28 | INDONESIA: SUMATERA: SW                  | 8.6 |       30 |
+| 2012-04-11 | INDONESIA: N SUMATRA: OFF WEST COAST     | 8.6 |       20 |
 
 We know that the top 5 earthquakes so far took place between 2000 and
 2023 are:
 
-1.  Japan Touhoku Earthquake 9.1
-2.  Chile Maule, Concepcion, Talcahuano Earthquake 8.8
-3.  Chile Central Earthquake 8.3
-4.  Mexico: Oaxaca, Chiapas, Tabasco; Guatemala 8.3
-5.  China Sichuan Earthquake 7.9
+1.  2004 Indian/Indonesia Ocean earthquake and tsunami 9.1
+2.  Japan Touhoku Earthquake 9.1
+3.  Chile Maule, Concepcion, Talcahuano Earthquake 8.8
+4.  Indonesia Sumatera 8.6
+5.  Indonesia Sumatera 8.6
 
-The focal depth of 4 out of 5 earthquakes reside 10-30 km.
+The focal depth of these top 5 earthquakes resides 10-30 km.
 
 Next, I want to find which country has the most earthquakes between 2000
 and 2023. To do this, I need to separate the location name into country
@@ -152,7 +136,7 @@ To make the country names and location more readable, I will modify its
 font.
 
 ``` r
-country_cleaned_df = cleaned_earthquake_df %>% separate(location,c("country", "location"), ":") %>% mutate(country = tools::toTitleCase(tolower(country)), 
+country_cleaned_df = filtered_df %>% separate(location,c("country", "location"), ":") %>% mutate(country = tools::toTitleCase(tolower(country)), 
                                                                                           location = tools::toTitleCase(tolower(location)))
 ```
 
@@ -160,28 +144,25 @@ country_cleaned_df = cleaned_earthquake_df %>% separate(location,c("country", "l
 country_cleaned_df %>% group_by(country) %>% summarize(frequency = n()) %>% arrange(-frequency) %>% head(5) %>% knitr::kable()
 ```
 
-| country     | frequency |
-|:------------|----------:|
-| China       |         8 |
-| Japan       |         7 |
-| Philippines |         7 |
-| Indonesia   |         5 |
-| Balkans Nw  |         2 |
+| country   | frequency |
+|:----------|----------:|
+| China     |       149 |
+| Indonesia |       136 |
+| Iran      |        83 |
+| Japan     |        72 |
+| India     |        51 |
 
 From the result, we can see that most of the earthquakes took place in
-East and Southeast Asia - including China, Japan, Philippines,
-Indonesia, India. A few earthquake also took place in Central and South
-America, such as Chile, Haiti, and Mexico.
+East and Southeast Asia - including China,Indonesia, Japan, and India. A
+few earthquake also took place in Central Asia like Iran.
 
-The top 4 countries\* will be:
+The top countries will be:
 
 1.  China
-2.  Japan
-3.  Philippines
-4.  Indonesia
-
-\*NOTE: Choosing top 4 instead of top 5 because the fifth place has the
-same frequency as the rest (i.e., 6th to 10th place).
+2.  Indonesia
+3.  Iran
+4.  Japan
+5.  India
 
 ## Dig into the context behind the casulty
 
@@ -193,7 +174,7 @@ variables.
 
 After simple comparison, most of the data are in alignment with death -
 total death, injuries - total injuries, and casualty - total casualty.
-Only these 3 records are in difference.
+Only these 1 record is in difference.
 
 ``` r
 country_cleaned_df %>% 
@@ -209,9 +190,7 @@ country_cleaned_df %>%
 
 | country | sum_death | sum_t\_death | sum_injured | sum_t\_injured | sum_casualty | sum_t\_casualty |
 |:--------|----------:|-------------:|------------:|---------------:|-------------:|----------------:|
-| Chile   |       409 |          573 |       12014 |          12014 |        12423 |           12587 |
-| Haiti   |    318248 |       318248 |       42763 |         312763 |       361011 |          631011 |
-| Japan   |      1540 |        18493 |        8916 |           8926 |        10456 |           27419 |
+| Haiti   |    318268 |       318268 |       43395 |         313395 |       361663 |          631663 |
 
 To define the casualty, I tend to be lenient toward the numbers. Hence,
 I decide to use the total casualty as an indicator since I believe it
@@ -220,16 +199,16 @@ includes the direct and indirect casualties from the disaster.
 ##### My original hypothesis is: The bigger the magnitude, the more casualty the disaster caused.
 
 ``` r
-country_cleaned_df %>% group_by(date, country, Mag) %>% summarize(Max_casualty = max(Total_Casualty)) %>% arrange(-Max_casualty) %>% head(5) %>% knitr::kable()
+country_cleaned_df %>% group_by(date, country, Mag) %>% summarize(sum_t_casualty = sum(Total_Casualty)) %>% arrange(-sum_t_casualty) %>% head(5) %>% knitr::kable()
 ```
 
-| date       | country   | Mag | Max_casualty |
-|:-----------|:----------|----:|-------------:|
-| 2010-01-12 | Haiti     | 7.0 |       616000 |
-| 2008-05-12 | China     | 7.9 |       461823 |
-| 2015-04-25 | Nepal     | 7.8 |        32957 |
-| 2011-03-11 | Japan     | 9.1 |        24595 |
-| 2018-09-28 | Indonesia | 7.5 |        15019 |
+| date       | country       | Mag | sum_t\_casualty |
+|:-----------|:--------------|----:|----------------:|
+| 2010-01-12 | Haiti         | 7.0 |          616000 |
+| 2008-05-12 | China         | 7.9 |          461823 |
+| 2023-02-06 | Turkey; Syria | 7.8 |          254524 |
+| 2005-10-08 | Pakistan      | 7.6 |          222812 |
+| 2001-01-26 | India         | 7.6 |          186841 |
 
 However, from the above table, we can see that Japan has the strongest
 magnitude earthquake between 2000 to 2023. The casualties are not the
@@ -240,9 +219,13 @@ massive emergency first aid.
 Let’s use a graph to present the hypothesis with the data.
 
 ``` r
-country_cleaned_df %>% group_by(date, country, Mag) %>% summarize(Max_casualty = max(Total_Casualty)) %>% ggplot(aes(x = Mag, y = Max_casualty)) + geom_point() + geom_smooth()+ scale_y_continuous(labels = scales::unit_format(unit = "M", scale = 1e-6)) + labs(title = "Max Casualty and Magnitude of Earthquake") +
-  xlab("Magnitude") + ylab("Max Casualty (Million)")
+country_cleaned_df %>% group_by(date, country, Mag) %>% summarize(sum_t_casualty = sum(Total_Casualty)) %>% ggplot(aes(x = Mag, y = sum_t_casualty)) + geom_point() + geom_smooth()+ scale_y_continuous(labels = scales::unit_format(unit = "M", scale = 1e-6)) + labs(title = "Sum of Casualties and Magnitude of Earthquake") +
+  xlab("Magnitude") + ylab("Sum of Casualty (Million)")
 ```
+
+    ## Warning: Removed 883 rows containing non-finite values (`stat_smooth()`).
+
+    ## Warning: Removed 883 rows containing missing values (`geom_point()`).
 
 ![](Earthquake_2000-2023_DataCleaning_files/figure-gfm/Casualy%20Viz-1.png)<!-- -->
 
@@ -251,7 +234,7 @@ related, which meant they are barely relevant. But, before drawing a
 conclusion, let’s test it with a correlation test.
 
 ``` r
-casualty_df = country_cleaned_df %>% group_by(date, country, Mag) %>% summarize(Max_casualty = max(Total_Casualty)) 
+casualty_df = country_cleaned_df %>% group_by(date, country, Mag) %>% summarize(sum_t_casualty = sum(Total_Casualty)) 
 shapiro.test(casualty_df$Mag)
 ```
 
@@ -259,17 +242,17 @@ shapiro.test(casualty_df$Mag)
     ##  Shapiro-Wilk normality test
     ## 
     ## data:  casualty_df$Mag
-    ## W = 0.98349, p-value = 0.6484
+    ## W = 0.99322, p-value = 1.209e-05
 
 ``` r
-shapiro.test(casualty_df$Max_casualty)
+shapiro.test(casualty_df$sum_t_casualty)
 ```
 
     ## 
     ##  Shapiro-Wilk normality test
     ## 
-    ## data:  casualty_df$Max_casualty
-    ## W = 0.22504, p-value = 1.727e-15
+    ## data:  casualty_df$sum_t_casualty
+    ## W = 0.099968, p-value < 2.2e-16
 
 From the output, the two p-values are greater than the significance
 level 0.05 implying that the distribution of the data are not
@@ -277,7 +260,7 @@ significantly different from normal distribution. In other words, we can
 assume the normality.
 
 ``` r
-res = cor.test(casualty_df$Mag, casualty_df$Max_casualty, 
+res = cor.test(casualty_df$Mag, casualty_df$sum_t_casualty, 
                     method = "pearson")
 res
 ```
@@ -285,17 +268,18 @@ res
     ## 
     ##  Pearson's product-moment correlation
     ## 
-    ## data:  casualty_df$Mag and casualty_df$Max_casualty
-    ## t = 1.3051, df = 53, p-value = 0.1975
+    ## data:  casualty_df$Mag and casualty_df$sum_t_casualty
+    ## t = 3.1411, df = 411, p-value = 0.001805
     ## alternative hypothesis: true correlation is not equal to 0
     ## 95 percent confidence interval:
-    ##  -0.09320136  0.42200057
+    ##  0.0574686 0.2459744
     ## sample estimates:
     ##       cor 
-    ## 0.1764589
+    ## 0.1531141
 
-The correlation coefficient: 0.1764589 is close to 0 meaning that there
-is no association between the two variables (Magnitude and Casualty).
+The correlation coefficient: 0.1531141 is close to 0 meaning that there
+is a lower degree of a positive association between the two variables
+(Magnitude and Sum of Casualites).
 
 ## Deep Dive into the Damage and the House Destroyed of each quake
 
@@ -305,7 +289,7 @@ how to distinguish these similar variables.
 
 After simple comparison, most of the data are in alignment with death -
 total death, injuries - total injuries, and casualty - total casualty.
-Only these 2 records are in difference.
+Only these 3 records are in difference.
 
 ``` r
 country_cleaned_df %>% 
@@ -317,10 +301,11 @@ country_cleaned_df %>%
   filter(sum_damage_mil != sum_t_damage_mil | sum_house_damaged != sum_t_house_damaged) %>% knitr::kable()
 ```
 
-| country | sum_damage_mil | sum_t\_damage_mil | sum_house_damaged | sum_t\_house_damaged |
-|:--------|---------------:|------------------:|------------------:|---------------------:|
-| China   |       89568.00 |           89568.0 |           5684498 |             21324498 |
-| Japan   |       42901.71 |          258636.6 |            108435 |               383737 |
+| country                 | sum_damage_mil | sum_t\_damage_mil | sum_house_damaged | sum_t\_house_damaged |
+|:------------------------|---------------:|------------------:|------------------:|---------------------:|
+| Bulgaria                |             NA |                NA |               100 |                  240 |
+| Greece, Turkey          |            450 |              4500 |                NA |                   NA |
+| Tajikistan; Afghanistan |             NA |                NA |               160 |                  250 |
 
 To define the Damage, I again incline to be lenient toward the numbers.
 Hence, I decide to use the Total Damage in Million and Total House
@@ -339,8 +324,8 @@ country_cleaned_df %>% group_by(date, country, Mag) %>% summarize(sum_damage = s
 | 2011-03-11 | Japan   | 9.1 |   220136.6 |           280920 |
 | 2008-05-12 | China   | 7.9 |    86000.0 |         21000000 |
 | 2010-02-27 | Chile   | 8.8 |    30000.0 |           500000 |
-| 2007-07-16 | Japan   | 6.6 |    12500.0 |              875 |
-| 2022-03-16 | Japan   | 7.3 |     8800.0 |            56718 |
+| 2004-10-23 | Japan   | 6.6 |    28000.0 |               NA |
+| 2016-04-15 | Japan   | 7.0 |    20000.0 |               NA |
 
 From the above table, we can see that Japan has the strongest magnitude
 earthquake between 2000 to 2023. The damage cost the most but the amount
@@ -353,14 +338,18 @@ materials.
 ##### Let’s visualize the relationship between Total Damage in Million and Magnitude.
 
 ``` r
-country_cleaned_df %>% group_by(date, country, Mag) %>% summarize(sum_damage = sum(Total_Damage_Mil)) %>% ggplot(aes(x = Mag, y = sum_damage)) + geom_point() + geom_smooth()+ geom_vline(xintercept = 8, colour="red", linetype = "longdash") + labs(title = "The Relationship between sum of Damage in Million and Magnitude of Earthquake") +
+country_cleaned_df %>% group_by(date, country, Mag) %>% summarize(sum_damage = sum(Total_Damage_Mil)) %>% ggplot(aes(x = Mag, y = sum_damage)) + geom_point() + geom_smooth()+ geom_vline(xintercept = 8.1, colour="red", linetype = "longdash") + labs(title = "The Relationship between sum of Damage in Million and Magnitude of Earthquake") +
   xlab("Magnitude") + ylab("Sum of Damage (Million)")
 ```
+
+    ## Warning: Removed 1117 rows containing non-finite values (`stat_smooth()`).
+
+    ## Warning: Removed 1117 rows containing missing values (`geom_point()`).
 
 ![](Earthquake_2000-2023_DataCleaning_files/figure-gfm/Damage%20in%20Mil%20and%20Magnitude%20Viz-1.png)<!-- -->
 
 Interestingly, we found an elbow point in the trend. When the Magnitude
-of the quake is greater than or equal to 8 the potential damage could
+of the quake is greater than or equal to 8.1 the potential damage could
 range from 1 to 200,000 Million.
 
 ``` r
@@ -372,7 +361,7 @@ shapiro.test(damage_df$Mag)
     ##  Shapiro-Wilk normality test
     ## 
     ## data:  damage_df$Mag
-    ## W = 0.98349, p-value = 0.6484
+    ## W = 0.99322, p-value = 1.209e-05
 
 ``` r
 shapiro.test(damage_df$sum_damage)
@@ -382,12 +371,34 @@ shapiro.test(damage_df$sum_damage)
     ##  Shapiro-Wilk normality test
     ## 
     ## data:  damage_df$sum_damage
-    ## W = 0.24928, p-value = 2.972e-15
+    ## W = 0.15864, p-value < 2.2e-16
 
-The sum of damage variable is way lower than the p-value which didn’t
-meet the premises of correlation test, implying that the distribution of
-the data are significantly different from normal distribution.
-Therefore, correlation test is not suitable in this case.
+From the output, the two p-values are greater than the significance
+level 0.05 implying that the distribution of the data are not
+significantly different from normal distribution. In other words, we can
+assume the normality.
+
+``` r
+res1 = cor.test(damage_df$Mag, damage_df$sum_damage, 
+                    method = "pearson")
+res1
+```
+
+    ## 
+    ##  Pearson's product-moment correlation
+    ## 
+    ## data:  damage_df$Mag and damage_df$sum_damage
+    ## t = 3.8501, df = 177, p-value = 0.0001648
+    ## alternative hypothesis: true correlation is not equal to 0
+    ## 95 percent confidence interval:
+    ##  0.1368920 0.4080192
+    ## sample estimates:
+    ##       cor 
+    ## 0.2779829
+
+The correlation coefficient: 0.2779829 is close to 0 meaning that there
+is a lower degree of a positive association between the two variables
+(Magnitude and Damage in Million).
 
 ##### What about House Damaged and the Magnitude ?
 
@@ -396,6 +407,10 @@ country_cleaned_df %>% group_by(date, country, Mag) %>% summarize(sum_house_dama
   labs(title = "The Relationship between sum of House damaged and Magnitude of Earthquake") +
   xlab("Magnitude") + ylab("Sum of House damaged(Million)") 
 ```
+
+    ## Warning: Removed 924 rows containing non-finite values (`stat_smooth()`).
+
+    ## Warning: Removed 924 rows containing missing values (`geom_point()`).
 
 ![](Earthquake_2000-2023_DataCleaning_files/figure-gfm/House%20Damaged%20and%20Magnitude%20Viz-1.png)<!-- -->
 
@@ -424,6 +439,10 @@ country_cleaned_df %>% group_by(date, country, Mag) %>% summarize(sum_house_dama
   xlab("Magnitude") + ylab("Sum of House damaged(Million)")
 ```
 
+    ## Warning: Removed 924 rows containing non-finite values (`stat_smooth()`).
+
+    ## Warning: Removed 924 rows containing missing values (`geom_point()`).
+
 ![](Earthquake_2000-2023_DataCleaning_files/figure-gfm/highlighted%20specific%20data%20point-1.png)<!-- -->
 
 ``` r
@@ -435,7 +454,7 @@ shapiro.test(house_damage_df$Mag)
     ##  Shapiro-Wilk normality test
     ## 
     ## data:  house_damage_df$Mag
-    ## W = 0.98349, p-value = 0.6484
+    ## W = 0.99322, p-value = 1.209e-05
 
 ``` r
 shapiro.test(house_damage_df$sum_house_damage)
@@ -445,12 +464,34 @@ shapiro.test(house_damage_df$sum_house_damage)
     ##  Shapiro-Wilk normality test
     ## 
     ## data:  house_damage_df$sum_house_damage
-    ## W = 0.13365, p-value = 2.483e-16
+    ## W = 0.033415, p-value < 2.2e-16
 
-The sum of house damaged variable is way lower than the p-value which
-didn’t meet the premises of correlation test, implying that the
-distribution of the data are significantly different from normal
-distribution. Therefore, correlation test is not suitable in this case.
+From the output, the two p-values are greater than the significance
+level 0.05 implying that the distribution of the data are not
+significantly different from normal distribution. In other words, we can
+assume the normality.
+
+``` r
+res2 = cor.test(house_damage_df$Mag,house_damage_df$sum_house_damage, 
+                    method = "pearson")
+res2
+```
+
+    ## 
+    ##  Pearson's product-moment correlation
+    ## 
+    ## data:  house_damage_df$Mag and house_damage_df$sum_house_damage
+    ## t = 2.3062, df = 370, p-value = 0.02165
+    ## alternative hypothesis: true correlation is not equal to 0
+    ## 95 percent confidence interval:
+    ##  0.0175740 0.2180798
+    ## sample estimates:
+    ##       cor 
+    ## 0.1190403
+
+The correlation coefficient: 0.1190403is close to 0 meaning that there
+is a lower degree of a positive association between the two variables
+(Magnitude and Sum of House Damage).
 
 For establishing an interactive data visualization, I will save the
 `country_cleaned_df` for Tableau presentation.
@@ -466,7 +507,7 @@ frequently in East or Southeast Asia. It has a lot to do with the plate
 activity underneath East and Southeast Asia.
 
 Please refer to below for the plates under East and
-Southeast![](Earthquake_2000-2023_DataCleaning_files\asiaplates.png)
+Southeast![](Earthquake_2000-2023_DataCleaning_files%5Casiaplates.png)
 
 Map of Tectonic Plates in East and Southeast Asia (United States
 Geological Survey, Public Domain)
@@ -524,5 +565,5 @@ adjacent to the continental plates to examine the architectural
 structure, intensify the emergency first aid, sponsor the rescue teams,
 reinforce the earthquake drill and plan, and prepare for supply.
 
-![](Earthquake_2000-2023_DataCleaning_files\tectonics.jpg) Reference
+![](Earthquake_2000-2023_DataCleaning_files%5Ctectonics.jpg) Reference
 from NOAA: <https://oceanservice.noaa.gov/facts/tectonics.html>
