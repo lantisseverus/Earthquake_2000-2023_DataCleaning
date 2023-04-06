@@ -46,3 +46,8 @@ The finding indirectly answered our next question, the magnitude is not the only
 Finally, the cost of the damage is not significant if the magnitude is less than 8. Only a quake whose Magnitude is equal to or greater than 8, would the cost of damage positively correlate to the magnitude. However, this is not conclusive. As previously mentioned, other secondary disasters such as landslides, tsunamis, and floods can also bring up a longer-term impact compared to earthquakes themselves.
 
 Last but not the least, hopefully, this data analysis can call out some actions for those governments whose countries are situated somewhere adjacent to the continental plates to examine the architectural structure, intensify the emergency first aid, sponsor the rescue teams, reinforce the earthquake drill and plan, and prepare for supply.
+
+
+## Data Visualization Result in Tableau
+
+https://public.tableau.com/views/Earthquakebetween2000-2023/Sheet1?:language=en-US&:display_count=n&:origin=viz_share_link
